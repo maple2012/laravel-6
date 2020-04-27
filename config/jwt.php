@@ -100,7 +100,7 @@ return [
     | Notice: If you set this to null you should remove 'exp' element from 'required_claims' list.
     |
     */
-
+    // 有效时间
     'ttl' => env('JWT_TTL', 60),
 
     /*
@@ -119,7 +119,7 @@ return [
     | systems in place to revoke the token if necessary.
     |
     */
-
+    // 刷新时间
     'refresh_ttl' => env('JWT_REFRESH_TTL', 20160),
 
     /*
@@ -219,7 +219,7 @@ return [
     | If you do not want or need this functionality, then set this to false.
     |
     */
-
+    // 默认打开黑名单
     'blacklist_enabled' => env('JWT_BLACKLIST_ENABLED', true),
 
     /*
@@ -234,7 +234,7 @@ return [
     | Set grace period in seconds to prevent parallel request failure.
     |
     */
-
+    // 多长时间内新旧 token 都能用 秒
     'blacklist_grace_period' => env('JWT_BLACKLIST_GRACE_PERIOD', 0),
 
     /*

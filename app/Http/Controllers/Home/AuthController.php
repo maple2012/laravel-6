@@ -2,15 +2,16 @@
 
 namespace App\Http\Controllers\Home;
 
+use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-use JWTAuth;
-use Tymon\JWTAuth\Exceptions\JWTException;
-use Tymon\JWTAuth\Contracts\JWTSubject;
+use Tymon\JWTAuth\Facades\JWTAuth;
+use App\Http\Requests\RegisterAuthRequest;
 
 class AuthController extends Controller
 {
+    public $loginAfterSignUp = true;
     /**
      * Create a new AuthController instance.
      * 要求附带email和password（数据来源users表）
@@ -23,11 +24,33 @@ class AuthController extends Controller
         // 这样的结果是，token 只能在有效期以内进行刷新，过期无法刷新
         // 如果把 refresh 也放进去，token 即使过期但仍在刷新期以内也可刷新
         // 不过刷新一次作废
-        $this->middleware('jwt.auth', ['except' => ['login']]);
+//        $this->middleware('jwt.auth', ['except' => ['login']]);
         // 另外关于上面的中间件，官方文档写的是『auth:api』
         // 但是我推荐用 『jwt.auth』，效果是一样的，但是有更加丰富的报错信息返回
     }
 
+    /**
+     * @Describe user register
+     * @param RegisterAuthRequest $request
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function register(RegisterAuthRequest $request) {
+        $user = new User();
+        $user->name = $request->name;
+        $user->phone = $request->phone;
+        $user->password = bcrypt($request->password);
+        $user->save();
+
+        if($this->loginAfterSignUp) {
+            return $this->login($request);
+        }
+
+        return response()->json([
+            'success' => true,
+            'data' => $user,
+        ],200);
+
+    }
     /**
      * Get a JWT via given credentials.
      *
@@ -35,7 +58,7 @@ class AuthController extends Controller
      */
     public function login(Request $request)
     {
-        $credentials = request(['email', 'password']);
+        $credentials = request(['phone', 'password']);
         if (! $token = auth('api')->attempt($credentials)) {
             return response()->json(['error' => 'Unauthorized'], 401);
         }
@@ -92,10 +115,9 @@ class AuthController extends Controller
         ]);
     }
 
-    public function userinfo(Request $request)
+    public function getAuthUser(Request $request)
     {
-//        dd(111);
-        dd(JWTAuth::authenticate());
-//        dd($this->user());
+        $user = JWTAuth::authenticate();
+        return response()->json(['user' => $user]);
     }
 }
