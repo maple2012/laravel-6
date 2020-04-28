@@ -66,8 +66,8 @@ return [
     | ahead and set this to a sensible default for you out of the box.
     |
     */
-
-    'timezone' => 'UTC',
+    // 修改时区，注意修改.env 的两个文件
+    'timezone' => env('TIME_ZONE','UTC'),
 
     /*
     |--------------------------------------------------------------------------
